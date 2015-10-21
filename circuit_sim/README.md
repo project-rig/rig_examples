@@ -32,16 +32,18 @@ Then make sure your board has been booted, e.g.:
 
     rig-boot spinnaker-board-hostname --spin5
 
-Two example circuits are provided which can be executed using
+Two example circuits are provided which can be executed using one of:
 
     python example_xor.py spinnaker-board-hostname
-
-and
-
     python example_flipflop.py spinnaker-board-hostname
 
 These scripts describe (at a high level) a circuit and then run a simulation on
-an attached SpiNNaker board and then plot the results using matplotlib.
+an attached SpiNNaker board and then plot the results using matplotlib. The
+`example_xor.py` script describes an XOR gate implemented using sum-of-products
+and produces a plot which looks like the following where the top two waveforms
+are the inputs to the XOR and the bottom waveform is the output.
+
+![XOR Example output](example_xor_output.png)
 
 The `circuit_sim.py` file contains the full Rig-based program which maps the
 high level circuit description onto a SpiNNaker board and runs the model. This

@@ -26,7 +26,7 @@ Usage
 
 You'll need to install some Python dependencies before you start:
 
-    pip install rig numpy matplotlib bytearray
+    pip install rig numpy matplotlib bitarray
 
 Then make sure your board has been booted, e.g.:
 

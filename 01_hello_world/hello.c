@@ -12,5 +12,5 @@ void c_main(void) {
     // area of on-chip memory automatically allocated by the system software.
     // We will later read the contents of the IO buffer back from the host in
     // order to display it to the user.
-	io_printf(IO_BUF, "Hello, world!\n");
+    io_printf(IO_BUF, "Hello, world!\n");
 }

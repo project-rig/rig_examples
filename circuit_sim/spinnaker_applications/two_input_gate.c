@@ -35,7 +35,8 @@ void on_tick(uint ticks, uint arg1) {
 void on_mc_packet(uint key, uint arg1) {
 	if ((key & 0x7FFFFFFF) == config->input_a_key) {
 		last_input_a = key >> 31;
-	} else if ((key & 0x7FFFFFFF) == config->input_b_key) {
+	}
+	if ((key & 0x7FFFFFFF) == config->input_b_key) {
 		last_input_b = key >> 31;
 	}
 }

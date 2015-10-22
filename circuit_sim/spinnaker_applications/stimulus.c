@@ -15,8 +15,10 @@ struct {
 
 void on_tick(uint ticks, uint arg1) {
 	// Terminate after the specified duration
-	if (ticks >= config->sim_length)
+	if (ticks >= config->sim_length) {
 		spin1_exit(0);
+		return;
+	}
 	
 	// Get the next output value
 	uint output = (config->stimulus[ticks / 8] >> (ticks % 8)) & 1;

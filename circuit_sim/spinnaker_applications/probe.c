@@ -17,8 +17,10 @@ uint last_input = 0;
 
 void on_tick(uint ticks, uint arg1) {
 	// Terminate after the specified duration
-	if (ticks >= config->sim_length)
+	if (ticks >= config->sim_length) {
 		spin1_exit(0);
+		return;
+	}
 	
 	// Record the value near the end of the timestep (so it is more likely we saw
 	// the input value after it changed in the timestep).

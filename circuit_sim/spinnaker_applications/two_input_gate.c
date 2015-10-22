@@ -20,8 +20,10 @@ uint last_input_b = 0;
 
 void on_tick(uint ticks, uint arg1) {
 	// Terminate after the specified duration
-	if (ticks >= config->sim_length)
+	if (ticks >= config->sim_length) {
 		spin1_exit(0);
+		return;
+	}
 	
 	// Calculate the new output value
 	uint output = (config->lut >> (last_input_a | (last_input_b << 1))) & 1;

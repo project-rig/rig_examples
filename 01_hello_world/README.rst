@@ -36,7 +36,7 @@ Host-side application
 ---------------------
 
 Now that we have our compiled binary we must boot our SpiNNaker machine, load
-our application onto a core and then read back the binary. We could do this
+our application onto a core and then read back the IO buffer. We could do this
 using the `ybug` command included with the low-level software tools but since
 we're building up towards a real-world application, we'll use `Rig
 <http://rig.readthedocs.org/en/stable/>`_.  Rig provides a higher-level Python

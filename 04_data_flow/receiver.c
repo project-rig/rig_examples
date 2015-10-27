@@ -12,14 +12,21 @@ void multicast_packet_received(uint key, uint payload)
 void timer_tick(uint n_ticks, uint arg1)
 {
   // If we've already run for ten ticks stop
-  if (n_ticks >= 9)
+  if (n_ticks > 9)
   {
     spin1_exit(0);
   }
 
-  // Print the sum to IOBUF then reset the value
-  io_printf(IO_BUF, "Sum = %u\n", sum);
+  // -- CRITICAL SECTION -- //
+  const uint cpsr = spin1_fiq_disable();
+
+  const uint oldsum = sum;
   sum = 0;
+
+  spin1_mode_restore(cpsr);
+  // -- END CRITICAL SECTION -- //
+
+  io_printf(IO_BUF, "Sum = %u\n", oldsum);
 }
 
 void c_main(void)
@@ -29,7 +36,7 @@ void c_main(void)
 
   // Set up the timer tick
   spin1_set_timer_tick(1000);
-  spin1_callback_on(TIMER_TICK, timer_tick, 0);
+  spin1_callback_on(TIMER_TICK, timer_tick, 1);
 
   // Set up the callback for receiving multicast packets with payloads.
   spin1_callback_on(MCPL_PACKET_RECEIVED,

@@ -1,21 +1,17 @@
 import sys
 import time
 from rig.machine_control import MachineController
+from rig.routing_table import RoutingTableEntry
+from rig.routing_table import Routes
 
 # Create a new MachineController for the SpiNNaker machine whose hostname is
 # given on the command line
 mc = MachineController(sys.argv[1])
 
-# To boot the machine, we take its network dimensions as command line
-# arguments.  For a SpiNN-2 or SpiNN-3 board these dimensions are 2 and 2. For
-# a SpiNN-5 board the dimensions are 8 and 8.
+# Boot the machine given the width and height arguments from the command line
 mc.boot(int(sys.argv[2]), int(sys.argv[3]))
 
-"""
-We'll load the transmitter application onto cores 1 and 2 of chip (1, 0), and
-core 3 of chip (1, 1).  The receiver application will be loaded to core 1 of
-(0, 1).
-"""
+# Create the application map
 application_map = {
     "transmitter.aplx": {
         (1, 0): {1, 2},
@@ -24,20 +20,7 @@ application_map = {
     "receiver.aplx": {(0, 1): {1}},
 }
 
-"""
-We need to create 1 routing entry on each of the chips that we're using. On
-chip (1, 0) we need to send all packets north to chip (1, 1).  From (1, 1) we
-need to send all packets west to (0, 1). On chip (0, 1) we need to route all
-the packets to core 1.
-
-.. note::
-    We can assign multiple routing table entries to each chip by adding more
-    items to the lists associated with each co-ordinate.
-
-"""
-from rig.routing_table import RoutingTableEntry
-from rig.routing_table import Routes
-
+# Create the routing tables
 routing_tables = {
     (1, 0): [
         RoutingTableEntry({Routes.north}, 0x0000ffff, 0xffffffff),
@@ -50,19 +33,7 @@ routing_tables = {
     ],
 }
 
-"""
-Loading the application occurs as before. We use ``load_routing_tables`` to
-load the routing tables that we specified before.
-
-We need to ensure that all applications are ready before they start execution.
-This is achieved with ``spin1_start(SYNC_WAIT)`` in the C. This causes
-applications to enter one of two alternating synchronisation states: ``sync0``
-or ``sync1``. We then wait to ensure that all applications are in the first of
-these states before sending a signal to start them.
-
-Before reading out the output from the receiver we wait for the application to
-stop as before.
-"""
+# Load and run the application
 with mc.application():
     # Load the applications and routing tables
     mc.load_application(application_map)

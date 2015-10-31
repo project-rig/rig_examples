@@ -15,6 +15,7 @@ Tutorial series:
     :maxdepth: 1
     
     01_hello_world/README.rst
+    02_using_sdram/README.rst
 
 
 More complex example programs:

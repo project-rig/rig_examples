@@ -11,7 +11,7 @@ loaded in SDRAM and writes the answer back to SDRAM.
 Much of the code in this example is unchanged from the previous example so we
 will only discuss the cahnges.
 
-`Example Source code on GitHub <https://github.com/project-rig/rig_examples/tree/master/02_hello_world>`_
+`Example Source code on GitHub <https://github.com/project-rig/rig_examples/tree/master/02_using_sdram>`_
 
 Allocating SDRAM
 ----------------

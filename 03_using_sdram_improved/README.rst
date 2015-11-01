@@ -28,9 +28,9 @@ block:
 File-like memory access
 -----------------------
 
-When working with SDRAM it can also be easy to accidentally access memory
-outside the range of an allocated buffer. To provide safer and more conveninent
-SDRAM access, the
+When working with SDRAM it can be easy to accidentally access memory outside
+the range of an allocated buffer. To provide safer and more conveninent SDRAM
+access the
 :py:meth:`~rig.machine_control.MachineController.sdram_alloc_as_filelike`
 method produces a file-like
 :py:class:`~rig.machine_control.machine_controller.MemoryIO` object. This

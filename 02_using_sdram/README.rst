@@ -3,13 +3,13 @@ Example 02: Reading and Writing SDRAM
 
 Most interesting SpiNNaker applications require some sort of configuration data
 to be loaded onto the machine or produce result data which must be read back
-from the machine. Typically this is done by allocating and writing/reading
-to/from the shared SDRAM on each SpiNNaker chip. In this example we'll write a
-simple SpiNNaker application which, using a single core, adds two numbers
-loaded in SDRAM and writes the answer back to SDRAM.
+from the machine. Typically this is done by allocating and writing to or
+reading from the shared SDRAM on each SpiNNaker chip. In this example we'll
+write a simple SpiNNaker application which, using a single core, adds two
+numbers loaded in SDRAM and writes the answer back to SDRAM.
 
 Much of the code in this example is unchanged from the previous example so we
-will only discuss the cahnges.
+will only discuss the changes.
 
 `Example Source code on GitHub <https://github.com/project-rig/rig_examples/tree/master/02_using_sdram>`_
 
@@ -17,10 +17,10 @@ Allocating SDRAM
 ----------------
 
 When both the host and SpiNNaker need to access the same block of SDRAM, such
-as when loading configuration data or reading back results, the SDRAM is
-typically allocated by the host.  In this example we'll allocate some SDRAM on
-chip (0, 0). We'll allocate a total of 12 bytes: 4 bytes (32 bits) for the two
-values we want to be added and another 4 bytes for the result using
+as when loading configuration data or reading back results, it is common for
+the host to allocate the SDRAM.  In this example we'll allocate some SDRAM on
+chip (0, 0). We'll allocate a total of 12 bytes: 4 bytes (32 bits) each for the
+two values we want to be added and another 4 bytes for the result using
 :py:meth:`~rig.machine_control.MachineController.sdram_alloc`:
 
 .. literalinclude:: adder.py
@@ -32,8 +32,9 @@ returns the address of a block of SDRAM on chip 0, 0 which was allocated.
 
 We also need to somehow inform the SpiNNaker application of this address. To do
 this we can use the 'tag' using the argument to give an identifier to the
-allocated memory block. The SpiNNaker application then uses the ``sark_tag_ptr`` function to look up the
-address of an SDRAM block with a specified tag.
+allocated memory block. The SpiNNaker application then uses the
+``sark_tag_ptr`` function to look up the address of an SDRAM block with a
+specified tag.
 
 .. literalinclude:: adder.c
     :language: c
@@ -41,10 +42,9 @@ address of an SDRAM block with a specified tag.
 
 A tag is a user-defined identifier which must be unique to the SpiNNaker chip
 and application. By convention the SDRAM allocated for applications running on
-core 1 are given tag 1, those on core 2 given tag 2 and so on. This
-conveninently means the same application binary can be loaded onto multiple
-cores which can simply look up their core number to discover their unique SDRAM
-allocation's address.
+core 1 are given tag 1, those on core 2 given tag 2 and so on. This means the
+same application binary can be loaded onto multiple cores which can simply look
+up their core number to discover their unique SDRAM allocation's address.
 
 Reading and writing to SDRAM
 ----------------------------
@@ -76,12 +76,11 @@ accessed like any other memory.
 .. warning::
 
     Though SpiNNaker's SDRAM *can* be accessed just like normal memory within a
-    SpiNNaker application, this comes with a significant performance penalty.
-    'Real' applications should use DMA to access SDRAM.
+    SpiNNaker application, this comes with a significant performance penalty;
+    'real' applications should use DMA to access SDRAM.
 
-Once the application has exited, the host can read back using
-:py:meth:`~rig.machine_control.MachineController.read` the answer and the
-result unpacked and printed.
+Once the application has exited, the host can read the answer back using
+:py:meth:`~rig.machine_control.MachineController.read`.
 
 .. literalinclude:: adder.py
     :language: python
@@ -89,9 +88,8 @@ result unpacked and printed.
 
 Finally, as in our last example we must send the ``stop`` signal using
 :py:meth:`~rig.machine_control.MachineController.send_signal` to free up all
-SpiNNaker resources. This is particularly important for this example since
-until this is called, the SDRAM and tag number will remain allocated and
-prevent this application running again.
+SpiNNaker resources. This is important since until the 'stop' signal is sent
+the SDRAM and tag number will remain allocated and may not be reallocated.
 
 .. literalinclude:: adder.py
     :language: python

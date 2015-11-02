@@ -23,3 +23,4 @@ More complex example programs:
     :maxdepth: 1
     
     circuit_sim/README.rst
+    heat_diffusion/README.rst

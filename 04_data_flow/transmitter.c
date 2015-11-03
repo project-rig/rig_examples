@@ -1,23 +1,27 @@
+#include "sark.h"
 #include "spin1_api.h"
 
-void timer_tick(uint n_ticks, uint arg1)
+// XXX: Will be included as part of next version of SCAMP/SARK.
+// Get a pointer to a tagged allocation. If the "app_id" parameter is zero
+// uses the core's app_id.
+void *sark_tag_ptr (uint tag, uint app_id)
 {
-  // If we've transmitted ten packets already then stop transmitting.
-  if (n_ticks > 9)
-  {
-    spin1_exit(0);
-  }
-
-  // Transmit a packet including the number of ticks as the payload.
-  spin1_send_mc_packet(0x0000ffff, n_ticks, WITH_PAYLOAD);
+  if (app_id == 0)
+    app_id = sark_vec->app_id;
+  
+  return (void *) sv->alloc_tag[(app_id << 8) + tag];
 }
 
 void c_main(void)
 {
-  // Set up the timer tick
-  spin1_set_timer_tick(1000);  // Tick every millisecond
-  spin1_callback_on(TIMER_TICK, timer_tick, 0);
+  // Get the multicast key and value to transmit from SDRAM
+  uint* data = (uint *) sark_tag_ptr(spin1_get_core_id(), 0);
+  uint key = data[0];
+  uint value = data[1];
 
   // Start when synchronised with other cores
-  spin1_start(SYNC_WAIT);
+  event_wait();
+
+  // Transmit a packet using the key and value loaded from SDRAM
+  spin1_send_mc_packet(key, value, WITH_PAYLOAD);
 }

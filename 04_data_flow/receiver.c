@@ -1,42 +1,41 @@
 #include "spin1_api.h"
 
-// Every time we receive a packet we'll add the payload to this sum, on every
-// timestep we'll write the sum to IOBUF and reset it to zero.
-uint sum;
+// XXX: Will be included as part of next version of SCAMP/SARK.
+// Get a pointer to a tagged allocation. If the "app_id" parameter is zero
+// uses the core's app_id.
+void *sark_tag_ptr (uint tag, uint app_id)
+{
+  if (app_id == 0)
+    app_id = sark_vec->app_id;
+  
+  return (void *) sv->alloc_tag[(app_id << 8) + tag];
+}
+
+// Stop execution after a period of time
+void finish(uint arg0, uint arg1)
+{
+  spin1_delay_us(1000);
+  spin1_exit(0);
+}
+
+// When we receive a packet we'll add the payload to this sum.
+uint *sum;
 
 void multicast_packet_received(uint key, uint payload)
 {
-  sum += payload;
-}
+  // Increase the sum
+  // uint cpsr = spin1_fiq_disable();
+  *sum += payload;
+  // spin1_mode_restore(cpsr);
 
-void timer_tick(uint n_ticks, uint arg1)
-{
-  // If we've already run for ten ticks stop
-  if (n_ticks > 9)
-  {
-    spin1_exit(0);
-  }
-
-  // -- CRITICAL SECTION -- //
-  const uint cpsr = spin1_fiq_disable();
-
-  const uint oldsum = sum;
-  sum = 0;
-
-  spin1_mode_restore(cpsr);
-  // -- END CRITICAL SECTION -- //
-
-  io_printf(IO_BUF, "Sum = %u\n", oldsum);
+  // Prepare to stop the simulation
+  spin1_schedule_callback(finish, 0, 0, 1);
 }
 
 void c_main(void)
 {
-  // Initialise the sum
-  sum = 0;
-
-  // Set up the timer tick
-  spin1_set_timer_tick(1000);
-  spin1_callback_on(TIMER_TICK, timer_tick, 1);
+  // Get the sum pointer
+  sum = (uint *) sark_tag_ptr(spin1_get_core_id(), 0);
 
   // Set up the callback for receiving multicast packets with payloads.
   spin1_callback_on(MCPL_PACKET_RECEIVED,

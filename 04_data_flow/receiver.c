@@ -24,12 +24,7 @@ uint *sum;
 void multicast_packet_received(uint key, uint payload)
 {
   // Increase the sum
-  // uint cpsr = spin1_fiq_disable();
   *sum += payload;
-  // spin1_mode_restore(cpsr);
-
-  // Prepare to stop the simulation
-  spin1_schedule_callback(finish, 0, 0, 1);
 }
 
 void c_main(void)
@@ -41,6 +36,9 @@ void c_main(void)
   spin1_callback_on(MCPL_PACKET_RECEIVED,
                     multicast_packet_received,
                     -1);
+
+  // Schedule the end of the simulation
+  spin1_schedule_callback(finish, 0, 0, 1);
 
   // Start when synchronised with other cores
   spin1_start(SYNC_WAIT);

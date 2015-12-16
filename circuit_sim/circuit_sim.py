@@ -8,11 +8,10 @@ import os
 
 from bitarray import bitarray
 
-from rig import place_and_route
 from rig.machine_control import MachineController
 from rig.machine_control.utils import sdram_alloc_for_vertices
 from rig.netlist import Net
-from rig.machine import Cores, SDRAM
+from rig.place_and_route import place_and_route_wrapper, Cores, SDRAM
 
 
 class Signal(object):
@@ -298,7 +297,7 @@ class Circuit(object):
         with mc.application():
             # Step 1: Determine what resources are available in the supplied
             # SpiNNaker machine.
-            machine = mc.get_machine()
+            system_info = mc.get_system_info()
             
             # Step 2: Describe the simulation as a graph of SpiNNaker applications
             # which Rig will place in the machine
@@ -320,8 +319,8 @@ class Circuit(object):
             
             # Step 3: Place and route the application graph we just described
             placements, allocations, application_map, routing_tables = \
-                place_and_route.wrapper(vertices_resources, vertices_applications,
-                                        nets, net_keys, machine)
+                place_and_route_wrapper(vertices_resources, vertices_applications,
+                                        nets, net_keys, system_info)
             
             # Step 4: Allocate SDRAM for each device. We use the
             # `sdram_alloc_for_vertices` utility method to allocate SDRAM on

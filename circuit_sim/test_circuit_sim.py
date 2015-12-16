@@ -8,7 +8,9 @@ from mock import Mock, call
 
 from bitarray import bitarray
 
-from rig.machine import Machine
+from rig.machine_control.machine_controller import SystemInfo, ChipInfo
+from rig.machine_control.consts import AppState
+from rig.links import Links
 
 import circuit_sim
 from circuit_sim import \
@@ -234,7 +236,13 @@ def test_circuit_simulate(monkeypatch):
             pass
     mock_mc.application.side_effect = CtxtMgr
     
-    mock_mc.get_machine.return_value = Machine(1, 1)
+    mock_mc.get_system_info.return_value = SystemInfo(1, 1, {
+        (0, 0): ChipInfo(num_cores=18,
+                         core_states=[AppState.run] + [AppState.idle]*17,
+                         working_links=set(Links),
+                         largest_free_sdram_block=110*1024*1024,
+                         largest_free_sram_block=1024*1024)
+    })
     
     mock_filelike = Mock()
     mock_mc.sdram_alloc_as_filelike.return_value = mock_filelike
@@ -259,12 +267,12 @@ def test_circuit_simulate(monkeypatch):
     mock_mc.application.assert_called_once_with()
     
     # Should have fetched the machine
-    mock_mc.get_machine.assert_called_once_with()
+    mock_mc.get_system_info.assert_called_once_with()
     
     # Should have allocated SDRAM for the one and only device on chip (0, 0),
     # the only one, and on core 1.
     mock_mc.sdram_alloc_as_filelike.assert_called_once_with(
-        osc.sdram_required(64), 1, buffer_size=0, x=0, y=0)
+        osc.sdram_required(64), 1, buffer_size=0, clear=False, x=0, y=0)
     
     # Should have loaded only one application
     mock_mc.load_application.assert_called_once_with({
